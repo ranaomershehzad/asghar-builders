@@ -30,7 +30,20 @@
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 html, body { margin: 0; }
-body { overscroll-behavior-y: none; }
+body { overscroll-behavior: none; }
+
+/* No sideways page movement, ever. Three separate iOS behaviours can cause
+   it even when nothing is actually too wide:
+   1. the page is allowed to pan horizontally at all  -> touch-action
+   2. a horizontal scroller (the project chips) hits its end and hands the
+      gesture to the page                              -> overscroll-behavior
+   3. any overflow at all, which Safari treats as pannable -> overflow clip
+   `clip` rather than `hidden`: hidden turns body into a scroll container and
+   silently breaks the sticky header. */
+html { overflow-x: hidden; }
+@supports (overflow-x: clip) {
+  html, body { overflow-x: clip; }
+}
 body {
   background: var(--bg); color: var(--ink); font-family: var(--body);
   font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased;
@@ -44,7 +57,13 @@ button { cursor: pointer; background: none; border: 0; }
   font-weight: 600; font-size: 11.5px; color: var(--muted);
 }
 
-.app { max-width: 480px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+.app {
+  max-width: 480px; margin: 0 auto; min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column; overflow-x: clip;
+}
+/* These areas only ever scroll up and down. The chips row is deliberately
+   left out so it keeps its sideways scroll. */
+main, .top-row, .tabs, .fab, .scrim, .login { touch-action: pan-y pinch-zoom; }
 
 /* top bar */
 .top { position: sticky; top: 0; z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); padding-top: env(safe-area-inset-top); }
@@ -54,7 +73,10 @@ button { cursor: pointer; background: none; border: 0; }
 .top-row .spacer { flex: 1; }
 .iconbtn { font-size: 12.5px; color: var(--muted); padding: 4px 8px; border-radius: 6px; }
 .iconbtn:hover { background: var(--surface-2); color: var(--ink); }
-.chips { display: flex; gap: 6px; overflow-x: auto; padding: 2px 16px 12px; scrollbar-width: none; }
+.chips {
+  display: flex; gap: 6px; overflow-x: auto; padding: 2px 16px 12px; scrollbar-width: none;
+  overscroll-behavior-x: contain; touch-action: pan-x pan-y;
+}
 .chips::-webkit-scrollbar { display: none; }
 .chip {
   flex: 0 0 auto; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
@@ -191,8 +213,8 @@ main { flex: 1; padding: 14px 16px 150px; display: flex; flex-direction: column;
 .sheet {
   background: var(--bg); width: 100%; max-width: 480px;
   max-height: 92vh; max-height: 92dvh;
-  overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
-  border-radius: 16px 16px 0 0; padding: 0 16px;
+  overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  touch-action: pan-y; border-radius: 16px 16px 0 0; padding: 0 16px;
   display: flex; flex-direction: column; gap: 12px;
 }
 .sheet > *:last-child { margin-bottom: 0; }
@@ -210,7 +232,9 @@ main { flex: 1; padding: 14px 16px 150px; display: flex; flex-direction: column;
 }
 .field textarea { resize: vertical; min-height: 60px; }
 .money input { font-family: var(--display); font-size: 30px; font-weight: 600; padding: 8px 12px; font-variant-numeric: tabular-nums; }
-.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.field { min-width: 0; }
+.field input, .field select, .field textarea { min-width: 0; max-width: 100%; }
 .pick { display: flex; flex-wrap: wrap; gap: 6px; }
 .pick { gap: 5px; }
 .pick button { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; }
@@ -289,8 +313,9 @@ button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 input[type="date"] {
   -webkit-appearance: none; appearance: none;
   min-height: 46px; text-align: left; display: block; color: var(--ink);
+  min-width: 0; max-width: 100%; box-sizing: border-box;
 }
-input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+input[type="date"]::-webkit-date-and-time-value { text-align: left; min-width: 0; }
 input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.55; }
 
 .selectwrap { position: relative; }
@@ -311,3 +336,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.55; }
 /* a long site name on the balance card wraps; the stage chip never squashes */
 .sum-head h2 { min-width: 0; overflow-wrap: anywhere; }
 .sum-head .status { flex: 0 0 auto; }
+
+.stmt .v.stack { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
+.stmt .v.stack .exact { font-size: 11px; font-weight: 400; color: var(--faint); }
+.stmt > div:last-child .v.stack .exact { font-family: var(--body); }

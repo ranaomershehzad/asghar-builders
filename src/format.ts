@@ -6,7 +6,8 @@ export function money(n: number, opts: { plus?: boolean } = {}): string {
   return `${sign}Rs ${digits}`;
 }
 
-/** Short form for tiles: Rs 42.0 lakh, Rs 1.72 crore. */
+/** How he says it: Rs 42.0 lakh, Rs 1.72 cr. Below a lakh, the exact figure
+ *  is already short, so it is used as-is. */
 export function shortMoney(n: number): string {
   const v = Math.round(Number(n) || 0);
   const abs = Math.abs(v);
@@ -52,4 +53,10 @@ export function qty(quantity: number, unit: string | null): string {
   const n = Number(quantity) || 0;
   const shown = Number.isInteger(n) ? n.toLocaleString("en-US") : String(Number(n.toFixed(3)));
   return unit && unit.trim() ? `${shown} ${unit.trim()}` : shown;
+}
+
+/** The exact rupees to print small under a lakh/crore figure. Null when the
+ *  headline figure is already exact, so nothing is printed twice. */
+export function exactUnder(n: number): string | null {
+  return Math.abs(Math.round(Number(n) || 0)) >= 100000 ? money(n) : null;
 }

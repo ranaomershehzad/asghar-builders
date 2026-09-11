@@ -1,4 +1,4 @@
-import { money, qty } from "../format";
+import { exactUnder, money, qty, shortMoney } from "../format";
 import {
   balanceMeaning,
   itemTotals,
@@ -8,6 +8,25 @@ import {
   type Entry,
   type Job,
 } from "../types";
+
+/** A statement figure: lakh/crore as the number, exact rupees underneath. */
+function Big({ value, prefix = "", tone }: { value: number; prefix?: string; tone?: string }) {
+  const exact = exactUnder(value);
+  return (
+    <span className="v stack" style={{ color: tone }}>
+      <span className="num">
+        {prefix}
+        {shortMoney(value)}
+      </span>
+      {exact && (
+        <span className="exact num">
+          {prefix}
+          {exact}
+        </span>
+      )}
+    </span>
+  );
+}
 
 export function ReportTab({
   job,
@@ -46,21 +65,19 @@ export function ReportTab({
             <span>
               Received ({receipts.length} {receipts.length === 1 ? "payment" : "payments"})
             </span>
-            <span className="v">{money(l.received)}</span>
+            <Big value={l.received} />
           </div>
           <div>
             <span>Spent on the project</span>
-            <span className="v">−{money(l.costs)}</span>
+            <Big value={l.costs} prefix="−" />
           </div>
           <div>
             <span>Taken out</span>
-            <span className="v">−{money(l.drawings)}</span>
+            <Big value={l.drawings} prefix="−" />
           </div>
           <div>
             <span>{meaning.short}</span>
-            <span className="v" style={{ color: tone }}>
-              {money(Math.abs(l.balance))}
-            </span>
+            <Big value={Math.abs(l.balance)} tone={tone} />
           </div>
         </div>
         <div className="hint" style={{ marginTop: 8 }}>

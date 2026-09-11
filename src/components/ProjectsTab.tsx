@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { money } from "../format";
+import { shortMoney } from "../format";
 import { balanceMeaning, ledgerFor, type Entry, type Job } from "../types";
 import { StatusChip } from "./ui";
 
@@ -31,15 +31,15 @@ function ProjectCard({
         </span>
         <span className="pline">
           <span>Received</span>
-          <b>{money(l.received)}</b>
+          <b>{shortMoney(l.received)}</b>
         </span>
         <span className="pline">
           <span>Paid out</span>
-          <b>{money(l.paidOut)}</b>
+          <b>{shortMoney(l.paidOut)}</b>
         </span>
         <span className="pline">
           <span>{meaning.short}</span>
-          <b style={{ color: tone }}>{money(Math.abs(l.balance))}</b>
+          <b style={{ color: tone }}>{shortMoney(Math.abs(l.balance))}</b>
         </span>
       </button>
       <button className="pcard-edit" onClick={() => onEdit(job)}>

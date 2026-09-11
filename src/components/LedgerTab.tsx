@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { money, niceDate, qty } from "../format";
+import { money, niceDate, qty, shortMoney } from "../format";
 import { runningBalance, CATEGORY_COLOR, type Entry, type Job, type LedgerRow } from "../types";
 import { BalanceCard } from "./BalanceCard";
 
@@ -78,7 +78,7 @@ export function LedgerTab({
         </div>
         {filtered && (
           <span className="filtertotal num">
-            {rows.length} {rows.length === 1 ? "entry" : "entries"} · {money(filteredTotal)}
+            {rows.length} {rows.length === 1 ? "entry" : "entries"} · {shortMoney(filteredTotal)}
           </span>
         )}
       </div>
@@ -108,7 +108,7 @@ export function LedgerTab({
                 <span className="rule" />
                 <span className="amt num">
                   {net >= 0 ? "+" : "−"}
-                  {money(Math.abs(net))}
+                  {shortMoney(Math.abs(net))}
                 </span>
               </div>
               {day.items.map(({ entry, balance }) => {
@@ -139,7 +139,7 @@ export function LedgerTab({
                       </span>
                       {!filtered && (
                         <span className={`bal ${balance < 0 ? "negative" : ""}`}>
-                          {money(balance)}
+                          {shortMoney(balance)}
                         </span>
                       )}
                     </span>

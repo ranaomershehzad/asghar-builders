@@ -1,18 +1,18 @@
-import { inWords, money } from "../format";
+import { exactUnder, shortMoney } from "../format";
 import { balanceMeaning, ledgerFor, type Entry, type Job } from "../types";
 import { StatusChip } from "./ui";
 
 /** Exact rupees, with the lakh/crore reading underneath — the exact figure
  *  is what he checks, the words are how he says it out loud. */
 function Tile({ label, value, tone }: { label: string; value: number; tone?: string }) {
-  const words = inWords(value);
+  const exact = exactUnder(value);
   return (
     <div className="cell">
       <div className="lbl">{label}</div>
       <div className="v num" style={{ color: tone }}>
-        {money(value)}
+        {shortMoney(value)}
       </div>
-      {words && <div className="cellwords">{words}</div>}
+      {exact && <div className="cellwords num">{exact}</div>}
     </div>
   );
 }
@@ -20,7 +20,7 @@ function Tile({ label, value, tone }: { label: string; value: number; tone?: str
 export function BalanceCard({ job, entries }: { job: Job; entries: Entry[] }) {
   const l = ledgerFor(job.id, entries);
   const meaning = balanceMeaning(job, l);
-  const words = inWords(Math.abs(l.balance));
+  const exact = exactUnder(Math.abs(l.balance));
 
   return (
     <section className="summary">
@@ -33,9 +33,9 @@ export function BalanceCard({ job, entries }: { job: Job; entries: Entry[] }) {
       </div>
 
       <div className="headline">
-        <div className={`big num ${meaning.tone}`}>{money(Math.abs(l.balance))}</div>
+        <div className={`big num ${meaning.tone}`}>{shortMoney(Math.abs(l.balance))}</div>
+        {exact && <div className="sub num">{exact}</div>}
         <div className={`meaning ${meaning.tone}`}>{meaning.headline}</div>
-        {words && <div className="sub">{words}</div>}
       </div>
 
       <div className="grid4">
