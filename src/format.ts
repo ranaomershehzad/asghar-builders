@@ -42,3 +42,10 @@ export function parseAmount(raw: string): number {
   const v = parseFloat(String(raw).replace(/[^0-9.]/g, ""));
   return Number.isFinite(v) ? v : 0;
 }
+
+/** "200 bags", "1.5 ton" — trailing zeros trimmed. */
+export function qty(quantity: number, unit: string | null): string {
+  const n = Number(quantity) || 0;
+  const shown = Number.isInteger(n) ? n.toLocaleString("en-US") : String(Number(n.toFixed(3)));
+  return unit && unit.trim() ? `${shown} ${unit.trim()}` : shown;
+}

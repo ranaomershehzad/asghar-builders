@@ -49,6 +49,9 @@ const normEntry = (r: Record<string, unknown>): Entry => ({
   amount: numberish(r.amount),
   party: (r.party as string) ?? null,
   method: r.method as Entry["method"],
+  item: (r.item as string) ?? null,
+  quantity: r.quantity == null ? null : numberish(r.quantity),
+  unit: (r.unit as string) ?? null,
 });
 
 export type Store = ReturnType<typeof useStore>;

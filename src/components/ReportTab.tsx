@@ -1,6 +1,7 @@
-import { money } from "../format";
+import { money, qty } from "../format";
 import {
   balanceMeaning,
+  itemTotals,
   ledgerFor,
   CATEGORY_COLOR,
   DRAWING,
@@ -19,7 +20,7 @@ export function ReportTab({
   onEditJob: (j: Job) => void;
   onExport: () => void;
 }) {
-  if (!job) return <div className="empty">Add a job first.</div>;
+  if (!job) return <div className="empty">Add a project first.</div>;
 
   const l = ledgerFor(job.id, entries);
   const meaning = balanceMeaning(job, l);
@@ -34,6 +35,7 @@ export function ReportTab({
   const max = rows.length ? rows[0][1] : 1;
 
   const receipts = mine.filter((e) => e.direction === "in");
+  const items = itemTotals(job.id, entries);
   const tone =
     meaning.tone === "good" ? "var(--good)" : meaning.tone === "bad" ? "var(--bad)" : undefined;
 
@@ -49,7 +51,7 @@ export function ReportTab({
             <span className="v">{money(l.received)}</span>
           </div>
           <div>
-            <span>Spent on the job</span>
+            <span>Spent on the project</span>
             <span className="v">−{money(l.costs)}</span>
           </div>
           <div>
@@ -57,7 +59,7 @@ export function ReportTab({
             <span className="v">−{money(l.drawings)}</span>
           </div>
           <div>
-            <span>{meaning.headline}</span>
+            <span>{meaning.short}</span>
             <span className="v" style={{ color: tone }}>
               {money(Math.abs(l.balance))}
             </span>
@@ -68,7 +70,7 @@ export function ReportTab({
             ? job.kind === "own"
               ? "Money in beyond what the build has cost."
               : "This much of the party's money has not been spent yet. It is not profit until the job is finished."
-            : "He has paid this much of his own money into the job. Ask the party for the next instalment."}
+            : "He has paid this much of his own money into the project. Ask the party for the next instalment."}
         </div>
       </section>
 
@@ -90,13 +92,43 @@ export function ReportTab({
                   }}
                 />
               </span>
-              <span className="hint">{((value / (l.costs || 1)) * 100).toFixed(0)}% of job spend</span>
+              <span className="hint">{((value / (l.costs || 1)) * 100).toFixed(0)}% of project spend</span>
             </div>
           ))
         )}
         {l.drawings > 0 && (
           <div className="hint" style={{ marginTop: 10 }}>
-            Plus {money(l.drawings)} taken out for himself, which is not counted as a job cost.
+            Plus {money(l.drawings)} taken out for himself, which is not counted as a project cost.
+          </div>
+        )}
+      </section>
+
+      <section className="panel">
+        <h3>What went into this project</h3>
+        {items.length === 0 ? (
+          <div className="hint">
+            Nothing named yet. Fill in <b>What did you buy</b> and <b>How many</b> when adding money
+            out, and the running totals appear here.
+          </div>
+        ) : (
+          <div className="items">
+            {items.map((it) => (
+              <div className="item" key={it.name}>
+                <span className="iname">{it.name}</span>
+                <span className="icost num">{money(it.cost)}</span>
+                <span className="iqty num">
+                  {it.byUnit.length
+                    ? it.byUnit.map((u) => qty(u.quantity, u.unit)).join(" + ")
+                    : `${it.entries} ${it.entries === 1 ? "purchase" : "purchases"}`}
+                </span>
+                {it.byUnit.length === 1 && it.byUnit[0].quantity > 0 && (
+                  <span className="irate">
+                    Rs {Math.round(it.cost / it.byUnit[0].quantity).toLocaleString("en-US")} per{" "}
+                    {it.byUnit[0].unit.replace(/s$/, "")}
+                  </span>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </section>
@@ -105,7 +137,7 @@ export function ReportTab({
         Download the whole ledger as CSV
       </button>
       <button className="primary" onClick={() => onEditJob(job)}>
-        Edit job details
+        Edit project details
       </button>
     </>
   );

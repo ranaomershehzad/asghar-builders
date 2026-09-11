@@ -1,4 +1,4 @@
-import { inWords, money, shortMoney } from "../format";
+import { inWords, money } from "../format";
 import { balanceMeaning, ledgerFor, type Entry, type Job } from "../types";
 import { StatusChip } from "./ui";
 
@@ -26,20 +26,20 @@ export function BalanceCard({ job, entries }: { job: Job; entries: Entry[] }) {
       <div className="grid4">
         <div className="cell">
           <div className="lbl">Received</div>
-          <div className="v num">{shortMoney(l.received)}</div>
+          <div className="v num">{money(l.received)}</div>
         </div>
         <div className="cell">
           <div className="lbl">Spent on job</div>
-          <div className="v num">{shortMoney(l.costs)}</div>
+          <div className="v num">{money(l.costs)}</div>
         </div>
         <div className="cell">
           <div className="lbl">Taken out</div>
-          <div className="v num">{shortMoney(l.drawings)}</div>
+          <div className="v num">{money(l.drawings)}</div>
         </div>
         <div className="cell">
           <div className="lbl">Balance</div>
           <div className="v num" style={{ color: l.balance < 0 ? "var(--bad)" : undefined }}>
-            {shortMoney(l.balance)}
+            {money(l.balance)}
           </div>
         </div>
       </div>

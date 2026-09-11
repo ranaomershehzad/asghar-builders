@@ -6,12 +6,12 @@ import { downloadCsv } from "./csv";
 import type { Direction, Entry, Job } from "./types";
 import { Login } from "./components/Login";
 import { LedgerTab } from "./components/LedgerTab";
-import { JobsTab } from "./components/JobsTab";
+import { ProjectsTab } from "./components/ProjectsTab";
 import { ReportTab } from "./components/ReportTab";
 import { EntrySheet } from "./components/EntrySheet";
 import { JobSheet } from "./components/JobSheet";
 
-type Tab = "ledger" | "jobs" | "report";
+type Tab = "ledger" | "report" | "projects";
 type SheetState =
   | { kind: "none" }
   | { kind: "entry"; existing: Entry | null; direction: Direction }
@@ -57,7 +57,7 @@ export function App() {
   return <Book userId={session.user.id} email={session.user.email ?? ""} />;
 }
 
-function Book({ userId, email }: { userId: string; email: string }) {
+export function Book({ userId, email }: { userId: string; email: string }) {
   const store = useStore(userId);
   const { jobs, entries } = store;
 
@@ -66,10 +66,16 @@ function Book({ userId, email }: { userId: string; email: string }) {
   const [sheet, setSheet] = useState<SheetState>({ kind: "none" });
   const [toast, setToast] = useState<string | null>(null);
 
-  const activeJob = useMemo(
-    () => jobs.find((j) => j.id === activeId) ?? jobs[0] ?? null,
-    [jobs, activeId],
-  );
+  const activeJob = useMemo(() => {
+    const picked = jobs.find((j) => j.id === activeId);
+    if (picked) return picked;
+    return jobs.find((j) => j.status !== "Finished") ?? jobs[0] ?? null;
+  }, [jobs, activeId]);
+
+  // Finished projects drop out of the top row — after a couple of years
+  // there would be too many to scroll. They live on the Projects tab, and
+  // one reappears here only while it is the project being looked at.
+  const chipJobs = jobs.filter((j) => j.status !== "Finished" || j.id === activeJob?.id);
 
   useEffect(() => {
     if (!toast) return;
@@ -97,7 +103,7 @@ function Book({ userId, email }: { userId: string; email: string }) {
           </button>
         </div>
         <div className="chips">
-          {jobs.map((j) => (
+          {chipJobs.map((j) => (
             <button
               className="chip"
               key={j.id}
@@ -105,10 +111,11 @@ function Book({ userId, email }: { userId: string; email: string }) {
               onClick={() => setActiveId(j.id)}
             >
               {j.name}
+              {j.status === "Finished" && <span className="chip-done"> · finished</span>}
             </button>
           ))}
           <button className="chip add" onClick={() => setSheet({ kind: "job", existing: null })}>
-            + Job
+            + Project
           </button>
         </div>
       </header>
@@ -130,10 +137,14 @@ function Book({ userId, email }: { userId: string; email: string }) {
             onNewJob={() => setSheet({ kind: "job", existing: null })}
           />
         )}
-        {tab === "jobs" && (
-          <JobsTab
+        {tab === "projects" && (
+          <ProjectsTab
             jobs={jobs}
             entries={entries}
+            onOpen={(j) => {
+              setActiveId(j.id);
+              setTab("ledger");
+            }}
             onEdit={(j) => setSheet({ kind: "job", existing: j })}
             onNew={() => setSheet({ kind: "job", existing: null })}
           />
@@ -169,9 +180,9 @@ function Book({ userId, email }: { userId: string; email: string }) {
       )}
 
       <nav className="tabs">
-        {(["ledger", "jobs", "report"] as Tab[]).map((t) => (
+        {(["ledger", "report", "projects"] as Tab[]).map((t) => (
           <button key={t} aria-current={t === tab} onClick={() => setTab(t)}>
-            {t === "ledger" ? "Ledger" : t === "jobs" ? "Jobs" : "Report"}
+            {t === "ledger" ? "Ledger" : t === "report" ? "Report" : "Projects"}
           </button>
         ))}
       </nav>
@@ -181,6 +192,7 @@ function Book({ userId, email }: { userId: string; email: string }) {
           existing={sheet.existing}
           direction={sheet.direction}
           jobs={jobs}
+          entries={entries}
           defaultJobId={activeJob.id}
           onSave={async (e) => {
             closeSheet();

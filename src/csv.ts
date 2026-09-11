@@ -9,7 +9,7 @@ export function buildCsv(jobs: Job[], entries: Entry[]): string {
   const lines: string[] = [];
 
   lines.push(
-    ["Date", "Job", "Client", "Description", "Category", "Paid to / from", "Method", "In (Rs)", "Out (Rs)", "Balance (Rs)"]
+    ["Date", "Job", "Client", "Item", "Quantity", "Unit", "Description", "Category", "Paid to / from", "Method", "In (Rs)", "Out (Rs)", "Balance (Rs)"]
       .map(quote)
       .join(","),
   );
@@ -22,6 +22,9 @@ export function buildCsv(jobs: Job[], entries: Entry[]): string {
           entry.entry_date,
           job.name,
           job.client,
+          entry.item,
+          entry.quantity,
+          entry.unit,
           entry.description,
           entry.category,
           entry.party,

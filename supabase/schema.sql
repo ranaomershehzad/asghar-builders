@@ -82,6 +82,12 @@ create table if not exists public.entries (
   description text,
   amount      numeric(14, 2) not null check (amount > 0),
   party       text,
+
+  -- What was bought, and how much of it. Only meaningful on 'out' entries;
+  -- all three are optional. Lets the app total up "200 bags of cement".
+  item        text,
+  quantity    numeric(12, 3) check (quantity is null or quantity > 0),
+  unit        text,
   method      text not null default 'Cash' check (method in ('Cash', 'Bank', 'Card')),
   created_at  timestamptz not null default now(),
   created_by  uuid references auth.users (id) on delete set null,
@@ -101,6 +107,9 @@ create table if not exists public.entries (
 
 create index if not exists entries_job_date_idx
   on public.entries (job_id, entry_date desc);
+
+create index if not exists entries_item_idx
+  on public.entries (job_id, lower(item));
 
 -- ---------------------------------------------------------------
 -- 4. Row level security — members see and edit everything, others nothing

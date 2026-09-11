@@ -115,6 +115,23 @@ asked for the password again on that phone.
 
 ---
 
+## Trying changes without deploying
+
+Two ways, in order of realism:
+
+**1. Against the real database.** Put the same two Supabase keys in `.env.local`,
+then `npm run dev`. This is the real app on real data — sign-in, saving, the lot.
+Make a project called "Test" and delete it when you're done.
+
+**2. Against fake data, no database at all.** Open
+`http://localhost:5173/preview.html` while `npm run dev` is running. It loads a
+few made-up projects straight into the browser so you can click every screen
+without touching Supabase. The two files behind it (`preview.html`,
+`src/preview.tsx`) are listed in `.gitignore` and `.vercelignore`, and Vite only
+ever builds `index.html`, so this cannot reach the live site.
+
+Neither costs a deployment.
+
 ## Running it locally
 
 ```bash
@@ -150,9 +167,14 @@ supabase/schema.sql  tables, row level security, membership
 
 Two tables, and one idea: **a job is a site with money coming in and money going out.**
 
-**jobs** — one row per site. `kind` is `client` (building for someone who pays in
-instalments) or `own` (he bought the land and will sell it). Plus the client's name,
-stage, and notes.
+**jobs** — one row per site. (The app calls these *projects*; the table kept its
+original name so no migration was needed.) `kind` is `client` (building for someone
+who pays in instalments) or `own` (he bought the land and will sell it). Plus the
+client's name, stage, and notes.
+
+A project set to **Finished** drops out of the top row of the app and moves into a
+collapsed "Finished" group on the Projects tab — after a couple of years that row
+would otherwise be unscrollable.
 
 **entries** — the ledger. One row per rupee movement:
 
@@ -160,6 +182,12 @@ stage, and notes.
 |---|---|---|
 | `in` | money received | Advance, Progress payment, Final payment, Sale, Other |
 | `out` | money paid | Materials, Labour, Subcontract, Permits, Equipment, Utilities, Land, My drawing, Other |
+
+Money-out entries can also carry `item`, `quantity` and `unit` — "Cement, 200,
+bags". The Report totals these per item across every purchase on the project, so
+"how many bags of cement have gone into this house" is one glance. Item names are
+matched case-insensitively and suggested from what has been typed before, so they
+stay consistent.
 
 Everything the app shows comes from those rows:
 

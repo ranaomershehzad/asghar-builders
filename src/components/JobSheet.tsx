@@ -31,7 +31,7 @@ export function JobSheet({
 
   function save() {
     if (!name.trim()) {
-      setError("Give the job a site name or address.");
+      setError("Give the project a site name or address.");
       return;
     }
     onSave({
@@ -45,7 +45,7 @@ export function JobSheet({
   }
 
   return (
-    <Sheet title={existing ? "Job details" : "New job"} onClose={onClose}>
+    <Sheet title={existing ? "Project details" : "New project"} onClose={onClose}>
       <div className="field">
         <label className="lbl" htmlFor="name">
           Site name or address
@@ -61,7 +61,7 @@ export function JobSheet({
       </div>
 
       <div className="field">
-        <span className="lbl">Type of job</span>
+        <span className="lbl">Type of project</span>
         <div className="pick">
           {KINDS.map((k) => (
             <button key={k} type="button" aria-pressed={k === kind} onClick={() => setKind(k)}>
@@ -111,14 +111,14 @@ export function JobSheet({
       </div>
 
       <button className="primary" onClick={save}>
-        {existing ? "Save job" : "Add job"}
+        {existing ? "Save project" : "Add project"}
       </button>
 
       {existing && (
         <button className="danger" onClick={() => (armed ? onDelete(existing.id) : setArmed(true))}>
           {armed
             ? "Tap again — this also deletes its ledger"
-            : `Delete job and its ${entryCount} ${entryCount === 1 ? "entry" : "entries"}`}
+            : `Delete project and its ${entryCount} ${entryCount === 1 ? "entry" : "entries"}`}
         </button>
       )}
     </Sheet>

@@ -65,7 +65,28 @@ export type Entry = {
   amount: number;
   party: string | null;
   method: Method;
+  /** What was bought — "Cement", "Sand". Money-out entries only. */
+  item: string | null;
+  /** How much of it. */
+  quantity: number | null;
+  /** The unit that quantity is counted in — "bags", "trips", "cft". */
+  unit: string | null;
 };
+
+/** Offered as suggestions in the entry form; he can type anything else. */
+export const COMMON_UNITS = [
+  "bags",
+  "trips",
+  "cft",
+  "sq ft",
+  "ft",
+  "kg",
+  "ton",
+  "pieces",
+  "bricks",
+  "litres",
+  "days",
+] as const;
 
 export type Ledger = {
   /** Everything received. */
@@ -97,19 +118,95 @@ export function ledgerFor(jobId: string, entries: Entry[]): Ledger {
 }
 
 /** What the balance means, in his words rather than an accountant's. */
-export function balanceMeaning(job: Job, l: Ledger): { headline: string; tone: "good" | "bad" | "" } {
+export type Meaning = {
+  /** The full sentence, for the top of a screen. */
+  headline: string;
+  /** Two or three words, for a row in a list where space is tight. */
+  short: string;
+  tone: "good" | "bad" | "";
+};
+
+export function balanceMeaning(job: Job, l: Ledger): Meaning {
   if (job.kind === "own") {
     if (l.received > 0) {
+      const profit = l.balance >= 0;
       return {
-        headline: l.balance >= 0 ? "Profit on this build" : "Loss on this build",
-        tone: l.balance >= 0 ? "good" : "bad",
+        headline: profit ? "Profit on this build" : "Loss on this build",
+        short: profit ? "Profit" : "Loss",
+        tone: profit ? "good" : "bad",
       };
     }
-    return { headline: "Your own money in this build so far", tone: "" };
+    return { headline: "Your own money in this build so far", short: "Your money in", tone: "" };
   }
-  if (l.balance > 0) return { headline: "Party's money still in your hand", tone: "good" };
-  if (l.balance < 0) return { headline: "You are out of pocket — the party owes you", tone: "bad" };
-  return { headline: "Square with the party", tone: "" };
+  // Once the work is done, whatever is left over is his margin, not the
+  // party's money sitting in his pocket waiting to be spent.
+  if (job.status === "Finished") {
+    if (l.balance > 0)
+      return { headline: "Your margin on this project", short: "Margin", tone: "good" };
+    if (l.balance < 0)
+      return {
+        headline: "Finished short — the party still owes you",
+        short: "Still owed",
+        tone: "bad",
+      };
+    return { headline: "Finished square with the party", short: "Square", tone: "" };
+  }
+  if (l.balance > 0)
+    return { headline: "Party's money still in your hand", short: "In hand", tone: "good" };
+  if (l.balance < 0)
+    return {
+      headline: "You are out of pocket — the party owes you",
+      short: "Out of pocket",
+      tone: "bad",
+    };
+  return { headline: "Square with the party", short: "Square", tone: "" };
+}
+
+export type ItemTotal = {
+  /** The spelling he used first, for display. */
+  name: string;
+  /** Totals per unit, because the same item can arrive in different units. */
+  byUnit: { unit: string; quantity: number }[];
+  cost: number;
+  entries: number;
+};
+
+/** "How many bags of cement have gone into this house" — totalled per item.
+ *  Items are matched case-insensitively so "Cement" and "cement" are one. */
+export function itemTotals(jobId: string, entries: Entry[]): ItemTotal[] {
+  const totals = new Map<string, ItemTotal>();
+
+  for (const e of entries) {
+    if (e.job_id !== jobId || e.direction !== "out") continue;
+    const name = (e.item ?? "").trim();
+    if (!name) continue;
+
+    const key = name.toLowerCase();
+    const row = totals.get(key) ?? { name, byUnit: [], cost: 0, entries: 0 };
+    row.cost += e.amount;
+    row.entries += 1;
+
+    if (e.quantity && e.quantity > 0) {
+      const unit = (e.unit ?? "").trim() || "units";
+      const existing = row.byUnit.find((u) => u.unit.toLowerCase() === unit.toLowerCase());
+      if (existing) existing.quantity += e.quantity;
+      else row.byUnit.push({ unit, quantity: e.quantity });
+    }
+
+    totals.set(key, row);
+  }
+
+  return [...totals.values()].sort((a, b) => b.cost - a.cost);
+}
+
+/** Every item name used anywhere, for the form's suggestion list. */
+export function knownItems(entries: Entry[]): string[] {
+  const seen = new Map<string, string>();
+  for (const e of entries) {
+    const name = (e.item ?? "").trim();
+    if (name && !seen.has(name.toLowerCase())) seen.set(name.toLowerCase(), name);
+  }
+  return [...seen.values()].sort((a, b) => a.localeCompare(b));
 }
 
 export type LedgerRow = { entry: Entry; balance: number };
