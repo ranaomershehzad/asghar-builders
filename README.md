@@ -158,7 +158,6 @@ src/
   supabase.ts        the client
   types.ts           jobs, entries, categories, the balance maths
   format.ts          rupee formatting, lakh/crore, dates
-  csv.ts             the ledger export
   components/        Login, the three tabs, the two edit sheets
 supabase/schema.sql  tables, row level security, membership
 ```
@@ -208,6 +207,19 @@ Categories are fixed by a `check` constraint in the database so they can't drift
 change them, edit the constraint in `schema.sql` **and** `IN_CATEGORIES` /
 `OUT_CATEGORIES` in `src/types.ts` — both, or inserts get rejected.
 
+## Notes on the phone
+
+The app is used almost entirely in a mobile browser, so a few things are deliberate:
+
+- Every form field is set to 16px. Below that, iOS Safari zooms the page when a field
+  is focused, and the zoom does not come back on its own.
+- Heights use `dvh`, not `vh`. Safari counts its own toolbars inside `vh`, so a `100vh`
+  sheet has its bottom hidden behind the browser chrome.
+- Each sheet has a sticky header and a sticky footer, so **Cancel** and the save button
+  stay reachable no matter how far down the form he has scrolled.
+- Sheets use `overscroll-behavior: contain`, so scrolling to the end of a form does not
+  start dragging the page underneath it.
+
 ## Working without signal
 
 Building sites have bad reception, so the app doesn't depend on it:
@@ -219,9 +231,9 @@ Building sites have bad reception, so the app doesn't depend on it:
 - Rows carry a client-generated UUID, so a retried send can't create a duplicate.
 
 What this does **not** survive: deleting the app's site data, or a phone lost before it
-next gets signal. The Report tab has a **Download the whole ledger as CSV** button — it
-exports every entry with its running balance, job by job. Taking one occasionally is a
-sensible habit.
+next gets signal. The data itself lives in Supabase, so nothing is trapped in the phone:
+**Supabase dashboard → Table Editor → entries → Export → CSV** gives you the lot whenever
+you want it.
 
 ## Likely next things
 

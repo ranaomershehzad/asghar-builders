@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { configured, supabase } from "./supabase";
 import { clearCache, useStore } from "./store";
-import { downloadCsv } from "./csv";
 import type { Direction, Entry, Job } from "./types";
 import { Login } from "./components/Login";
 import { LedgerTab } from "./components/LedgerTab";
@@ -64,7 +63,6 @@ export function Book({ userId, email }: { userId: string; email: string }) {
   const [tab, setTab] = useState<Tab>("ledger");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [sheet, setSheet] = useState<SheetState>({ kind: "none" });
-  const [toast, setToast] = useState<string | null>(null);
 
   const activeJob = useMemo(() => {
     const picked = jobs.find((j) => j.id === activeId);
@@ -76,12 +74,6 @@ export function Book({ userId, email }: { userId: string; email: string }) {
   // there would be too many to scroll. They live on the Projects tab, and
   // one reappears here only while it is the project being looked at.
   const chipJobs = jobs.filter((j) => j.status !== "Finished" || j.id === activeJob?.id);
-
-  useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2600);
-    return () => clearTimeout(t);
-  }, [toast]);
 
   async function signOut() {
     clearCache();
@@ -154,10 +146,6 @@ export function Book({ userId, email }: { userId: string; email: string }) {
             job={activeJob}
             entries={entries}
             onEditJob={(j) => setSheet({ kind: "job", existing: j })}
-            onExport={() => {
-              downloadCsv(jobs, entries);
-              setToast("Ledger downloaded.");
-            }}
           />
         )}
       </main>
@@ -227,7 +215,6 @@ export function Book({ userId, email }: { userId: string; email: string }) {
         />
       )}
 
-      {toast && <div className="toast">{toast}</div>}
     </div>
   );
 }

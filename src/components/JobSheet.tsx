@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { newId } from "../store";
 import { KINDS, STATUSES, type Job, type Kind, type Status } from "../types";
-import { Choice, Sheet } from "./ui";
+import { Choice, Sheet, SheetActions } from "./ui";
 
 const KIND_LABEL: Record<Kind, string> = {
   client: "For a client",
@@ -102,17 +102,11 @@ export function JobSheet({
         />
       </div>
 
-      {error && <div className="errline">{error}</div>}
-
       <div className="hint">
         {kind === "own"
           ? "For an own build, put the land price in as Money out with type Land, and the sale as Money in."
           : "Everything the party pays goes in as Money in. Everything spent goes out. The balance shows whether you are holding their money or your own."}
       </div>
-
-      <button className="primary" onClick={save}>
-        {existing ? "Save project" : "Add project"}
-      </button>
 
       {existing && (
         <button className="danger" onClick={() => (armed ? onDelete(existing.id) : setArmed(true))}>
@@ -121,6 +115,13 @@ export function JobSheet({
             : `Delete project and its ${entryCount} ${entryCount === 1 ? "entry" : "entries"}`}
         </button>
       )}
+
+      <SheetActions>
+        {error && <div className="errline">{error}</div>}
+        <button className="primary" onClick={save}>
+          {existing ? "Save project" : "Add project"}
+        </button>
+      </SheetActions>
     </Sheet>
   );
 }

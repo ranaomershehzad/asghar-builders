@@ -2,6 +2,21 @@ import { inWords, money } from "../format";
 import { balanceMeaning, ledgerFor, type Entry, type Job } from "../types";
 import { StatusChip } from "./ui";
 
+/** Exact rupees, with the lakh/crore reading underneath — the exact figure
+ *  is what he checks, the words are how he says it out loud. */
+function Tile({ label, value, tone }: { label: string; value: number; tone?: string }) {
+  const words = inWords(value);
+  return (
+    <div className="cell">
+      <div className="lbl">{label}</div>
+      <div className="v num" style={{ color: tone }}>
+        {money(value)}
+      </div>
+      {words && <div className="cellwords">{words}</div>}
+    </div>
+  );
+}
+
 export function BalanceCard({ job, entries }: { job: Job; entries: Entry[] }) {
   const l = ledgerFor(job.id, entries);
   const meaning = balanceMeaning(job, l);
@@ -24,24 +39,10 @@ export function BalanceCard({ job, entries }: { job: Job; entries: Entry[] }) {
       </div>
 
       <div className="grid4">
-        <div className="cell">
-          <div className="lbl">Received</div>
-          <div className="v num">{money(l.received)}</div>
-        </div>
-        <div className="cell">
-          <div className="lbl">Spent on job</div>
-          <div className="v num">{money(l.costs)}</div>
-        </div>
-        <div className="cell">
-          <div className="lbl">Taken out</div>
-          <div className="v num">{money(l.drawings)}</div>
-        </div>
-        <div className="cell">
-          <div className="lbl">Balance</div>
-          <div className="v num" style={{ color: l.balance < 0 ? "var(--bad)" : undefined }}>
-            {money(l.balance)}
-          </div>
-        </div>
+        <Tile label="Received" value={l.received} />
+        <Tile label="Spent on job" value={l.costs} />
+        <Tile label="Taken out" value={l.drawings} />
+        <Tile label="Balance" value={l.balance} tone={l.balance < 0 ? "var(--bad)" : undefined} />
       </div>
     </section>
   );

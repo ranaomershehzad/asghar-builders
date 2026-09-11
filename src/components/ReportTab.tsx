@@ -13,12 +13,10 @@ export function ReportTab({
   job,
   entries,
   onEditJob,
-  onExport,
 }: {
   job: Job | null;
   entries: Entry[];
   onEditJob: (j: Job) => void;
-  onExport: () => void;
 }) {
   if (!job) return <div className="empty">Add a project first.</div>;
 
@@ -133,9 +131,6 @@ export function ReportTab({
         )}
       </section>
 
-      <button className="primary secondary" onClick={onExport}>
-        Download the whole ledger as CSV
-      </button>
       <button className="primary" onClick={() => onEditJob(job)}>
         Edit project details
       </button>

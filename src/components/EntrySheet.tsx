@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { parseAmount, today } from "../format";
+import { inWords, parseAmount, today } from "../format";
 import { newId } from "../store";
 import {
   COMMON_UNITS,
@@ -12,7 +12,7 @@ import {
   type Job,
   type Method,
 } from "../types";
-import { Choice, Sheet } from "./ui";
+import { Choice, Sheet, SheetActions } from "./ui";
 
 export function EntrySheet({
   existing,
@@ -103,6 +103,7 @@ export function EntrySheet({
           onChange={(e) => setAmount(e.target.value)}
           style={isIn ? { color: "var(--good)" } : undefined}
         />
+        {inWords(value) && <div className="inwords">{inWords(value)}</div>}
       </div>
 
       {isIn ? (
@@ -250,21 +251,22 @@ export function EntrySheet({
         onChange={setMethod}
       />
 
-      {error && <div className="errline">{error}</div>}
-
-      <button
-        className="primary"
-        onClick={save}
-        style={isIn ? { background: "var(--good)" } : undefined}
-      >
-        {existing ? "Save changes" : isIn ? "Add money in" : "Add money out"}
-      </button>
-
       {existing && (
         <button className="danger" onClick={() => (armed ? onDelete(existing.id) : setArmed(true))}>
           {armed ? "Tap again to delete for good" : "Delete this entry"}
         </button>
       )}
+
+      <SheetActions>
+        {error && <div className="errline">{error}</div>}
+        <button
+          className="primary"
+          onClick={save}
+          style={isIn ? { background: "var(--good)" } : undefined}
+        >
+          {existing ? "Save changes" : isIn ? "Add money in" : "Add money out"}
+        </button>
+      </SheetActions>
     </Sheet>
   );
 }

@@ -20,12 +20,16 @@ function trim(x: number): string {
   return x >= 100 ? x.toFixed(0) : x >= 10 ? x.toFixed(1) : x.toFixed(2);
 }
 
-/** "42 lakh" — the way the amount would be said out loud. */
+/** "42 lakh", "1.25 crore", "40 thousand" — how the amount is said out loud.
+ *  Returns null for small change that nobody would say this way. */
 export function inWords(n: number): string | null {
-  const abs = Math.abs(Math.round(Number(n) || 0));
-  if (abs < 100000) return null;
-  if (abs >= 10000000) return `${trim(abs / 10000000)} crore`;
-  return `${trim(abs / 100000)} lakh`;
+  const v = Math.round(Number(n) || 0);
+  const abs = Math.abs(v);
+  if (abs < 1000) return null;
+  const sign = v < 0 ? "−" : "";
+  if (abs >= 10000000) return `${sign}${trim(abs / 10000000)} crore`;
+  if (abs >= 100000) return `${sign}${trim(abs / 100000)} lakh`;
+  return `${sign}${trim(abs / 1000)} thousand`;
 }
 
 export const today = (): string => new Date().toISOString().slice(0, 10);

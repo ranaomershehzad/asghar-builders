@@ -75,3 +75,9 @@ export function StatusChip({ status }: { status: string }) {
   const cls = status === "Finished" ? "sold" : status === "Active" ? "building" : "";
   return <span className={`status ${cls}`}>{status}</span>;
 }
+
+/** Pins the save/delete buttons to the bottom of a sheet, so a long form
+ *  never hides them behind the browser's own toolbar. */
+export function SheetActions({ children }: { children: ReactNode }) {
+  return <div className="sheet-actions">{children}</div>;
+}
