@@ -33,9 +33,9 @@ export function App() {
     return (
       <div className="login">
         <div className="mark">
-          ASGHAR
+          AHMAD
           <br />
-          <span>BUILDERS</span>
+          <span>ASSOCIATES</span>
         </div>
         <p>
           This copy has no database details yet. Add <code>VITE_SUPABASE_URL</code> and{" "}
@@ -87,7 +87,7 @@ export function Book({ userId, email }: { userId: string; email: string }) {
       <header className="top">
         <div className="top-row">
           <div className="brand">
-            ASGHAR <span>BUILDERS</span>
+            AHMAD <span>ASSOCIATES</span>
           </div>
           <div className="spacer" />
           <button className="iconbtn" onClick={signOut} title={email}>

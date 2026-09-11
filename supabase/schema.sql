@@ -1,4 +1,4 @@
--- Asghar Builders — database schema
+-- Ahmad Associates — database schema
 -- Run this once in the Supabase dashboard: SQL Editor -> New query -> paste -> Run.
 --
 -- If you already ran an earlier version of this file, uncomment these three

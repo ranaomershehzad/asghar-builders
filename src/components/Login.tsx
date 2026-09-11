@@ -26,9 +26,9 @@ export function Login() {
   return (
     <form className="login" onSubmit={submit}>
       <div className="mark">
-        ASGHAR
+        AHMAD
         <br />
-        <span>BUILDERS</span>
+        <span>ASSOCIATES</span>
       </div>
       <p>Sign in to open the expense book.</p>
       <div className="field">

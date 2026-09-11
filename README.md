@@ -1,4 +1,4 @@
-# Asghar Builders
+# Ahmad Associates
 
 A phone-first **ledger** for a builder: money in from the party, money out to
 suppliers and labour, and the running balance — is he holding the client's money,
@@ -25,7 +25,7 @@ brew install node
 ### 1. Create the Supabase project
 
 1. Go to supabase.com → **New project**.
-2. Name it `asghar-builders`. Choose the region closest to Pakistan —
+2. Name it `ahmad-associates`. Choose the region closest to Pakistan —
    **Southeast Asia (Singapore)** is the nearest option.
 3. Set a database password and save it in your password manager. You won't need it
    for this app, but you'll want it later.
