@@ -190,30 +190,32 @@ export function EntrySheet({
         onChange={setCategory}
       />
 
-      <div className="two">
-        <div className="field">
-          <label className="lbl" htmlFor="date">
-            Date
-          </label>
-          <input
-            id="date"
-            type="date"
-            value={entryDate}
-            onChange={(e) => setEntryDate(e.target.value)}
-          />
-        </div>
-        <div className="field">
-          <label className="lbl" htmlFor="job">
-            Project
-          </label>
+      <div className="field">
+        <label className="lbl" htmlFor="job">
+          Project
+        </label>
+        <div className="selectwrap">
           <select id="job" value={jobId} onChange={(e) => setJobId(e.target.value)}>
             {jobs.map((j) => (
               <option key={j.id} value={j.id}>
                 {j.name}
+                {j.client ? ` — ${j.client}` : ""}
               </option>
             ))}
           </select>
         </div>
+      </div>
+
+      <div className="field">
+        <label className="lbl" htmlFor="date">
+          Date
+        </label>
+        <input
+          id="date"
+          type="date"
+          value={entryDate}
+          onChange={(e) => setEntryDate(e.target.value)}
+        />
       </div>
 
       <div className="field">

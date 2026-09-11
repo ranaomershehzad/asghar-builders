@@ -65,15 +65,17 @@ export function LedgerTab({
         <label className="lbl" htmlFor="filter">
           Show
         </label>
-        <select id="filter" value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value={ALL}>Everything</option>
-          <option value={MONEY_IN}>Money in only</option>
-          {outCategories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+        <div className="selectwrap compact">
+          <select id="filter" value={filter} onChange={(e) => setFilter(e.target.value)}>
+            <option value={ALL}>Everything</option>
+            <option value={MONEY_IN}>Money in only</option>
+            {outCategories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
         {filtered && (
           <span className="filtertotal num">
             {rows.length} {rows.length === 1 ? "entry" : "entries"} · {money(filteredTotal)}

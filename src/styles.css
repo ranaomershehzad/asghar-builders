@@ -243,10 +243,7 @@ main { flex: 1; padding: 14px 16px 150px; display: flex; flex-direction: column;
 
 /* filter bar */
 .filterbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.filterbar select {
-  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
-  padding: 7px 10px; font-size: 13.5px; max-width: 190px;
-}
+.filterbar .selectwrap { max-width: 210px; }
 .filtertotal { margin-left: auto; font-size: 12.5px; color: var(--muted); }
 
 /* what went into the job */
@@ -286,3 +283,31 @@ main { flex: 1; padding: 14px 16px 150px; display: flex; flex-direction: column;
 /* taps feel immediate, and nothing gets text-selected by a long press */
 button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .row, .pcard-main, .chip, .tabs button { user-select: none; -webkit-user-select: none; }
+
+/* iOS draws its own date field and select. Take control of both so they
+   sit like every other field: same height, same padding, text on the left. */
+input[type="date"] {
+  -webkit-appearance: none; appearance: none;
+  min-height: 46px; text-align: left; display: block; color: var(--ink);
+}
+input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.55; }
+
+.selectwrap { position: relative; }
+.selectwrap select {
+  -webkit-appearance: none; appearance: none; width: 100%;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 9px;
+  padding: 11px 38px 11px 12px; font-size: 16px; min-height: 46px;
+  color: var(--ink); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+}
+.selectwrap::after {
+  content: ""; position: absolute; right: 14px; top: 50%; width: 8px; height: 8px;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: translateY(-70%) rotate(45deg); pointer-events: none;
+}
+.selectwrap.compact select { padding: 7px 32px 7px 10px; font-size: 14px; min-height: 0; border-radius: 8px; }
+.selectwrap.compact::after { right: 12px; width: 7px; height: 7px; }
+
+/* a long site name on the balance card wraps; the stage chip never squashes */
+.sum-head h2 { min-width: 0; overflow-wrap: anywhere; }
+.sum-head .status { flex: 0 0 auto; }
